@@ -24,9 +24,13 @@ type Source = {
 export default function Home({ chat }: Props) {
   const [loading, setLoading] = useState(false);
 
+  const [uploadCollapsed, setUploadCollapsed] =
+    useState(false);
+
   const stopGeneration = useRef(false);
 
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef =
+    useRef<HTMLTextAreaElement>(null);
 
   const {
     currentConversation,
@@ -43,16 +47,16 @@ export default function Home({ chat }: Props) {
     answer: string,
     sources: Source[]
   ) => {
-    startAssistantMessage(sources);
-
     stopGeneration.current = false;
+
+    startAssistantMessage(sources);
 
     let current = "";
 
-    for (let i = 0; i < answer.length; i++) {
+    for (const character of answer) {
       if (stopGeneration.current) break;
 
-      current += answer[i];
+      current += character;
 
       updateLastAssistantMessage(current);
 
@@ -72,13 +76,21 @@ export default function Home({ chat }: Props) {
     setLoading(true);
 
     try {
-      const response = await api.post("/chat/", {
-        question,
-      });
+      const { data } = await api.post(
+        "/chat/",
+        {
+          question,
+        }
+      );
+
+      console.log(
+        "Backend Response:",
+        data
+      );
 
       await streamAssistantMessage(
-        response.data.answer,
-        response.data.sources ?? []
+        data.answer,
+        data.sources ?? []
       );
     } catch (error) {
       console.error(error);
@@ -121,14 +133,14 @@ export default function Home({ chat }: Props) {
   ) => {
     if (loading) return;
 
-    const userMessage: Message = {
+    if (!text.trim()) return;
+
+    addMessage({
       role: "user",
-      content: text,
-    };
+      content: text.trim(),
+    });
 
-    addMessage(userMessage);
-
-    await askBackend(text);
+    await askBackend(text.trim());
   };
 
   // ==========================================
@@ -151,6 +163,10 @@ export default function Home({ chat }: Props) {
     toast.success(
       "Document ready for questions!"
     );
+
+    setUploadCollapsed(true);
+
+    inputRef.current?.focus();
   };
 
   // ==========================================
@@ -158,6 +174,8 @@ export default function Home({ chat }: Props) {
   // ==========================================
 
   const handleRegenerate = async () => {
+    if (loading) return;
+
     const lastUser = [
       ...currentConversation.messages,
     ]
@@ -174,17 +192,15 @@ export default function Home({ chat }: Props) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Upload */}
-
-      <div className="border-b border-slate-800 bg-slate-950 p-6">
+      <div className="border-b border-slate-800 bg-slate-950 px-4 py-3">
         <DashboardTop
           onUploadSuccess={
             handleUploadSuccess
           }
+          collapsed={uploadCollapsed}
+          setCollapsed={setUploadCollapsed}
         />
       </div>
-
-      {/* Chat */}
 
       <div className="min-h-0 flex-1 overflow-hidden">
         <ChatBox
@@ -197,8 +213,6 @@ export default function Home({ chat }: Props) {
           }
         />
       </div>
-
-      {/* Input */}
 
       <div className="border-t border-slate-800 bg-slate-950">
         <ChatInput

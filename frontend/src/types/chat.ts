@@ -12,7 +12,14 @@ export type Message = {
 
 export type Conversation = {
   id: string;
+
   title: string;
+
   createdAt: Date;
+
+  updatedAt: Date;
+
+  pinned: boolean;
+
   messages: Message[];
 };

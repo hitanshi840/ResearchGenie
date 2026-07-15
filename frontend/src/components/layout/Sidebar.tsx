@@ -8,6 +8,7 @@ import {
   Trash2,
   Search,
   Settings,
+  Pin,
 } from "lucide-react";
 
 import { useMemo, useState } from "react";
@@ -23,6 +24,7 @@ type Props = {
   newChat: () => void;
   deleteConversation: (id: string) => void;
   renameConversation: (id: string) => void;
+  togglePin: (id: string) => void;
 
   page: Page;
   setPage: React.Dispatch<
@@ -37,6 +39,7 @@ export default function Sidebar({
   newChat,
   deleteConversation,
   renameConversation,
+  togglePin,
   page,
   setPage,
 }: Props) {
@@ -49,7 +52,6 @@ export default function Sidebar({
 
   const isYesterday = (date: Date) => {
     const yesterday = new Date();
-
     yesterday.setDate(today.getDate() - 1);
 
     return (
@@ -75,19 +77,29 @@ export default function Sidebar({
       );
     }, [conversations, search]);
 
+  const pinnedChats =
+    filteredConversations.filter(
+      (c) => c.pinned
+    );
+
   const todayChats =
-    filteredConversations.filter((c) =>
-      isToday(c.createdAt)
+    filteredConversations.filter(
+      (c) =>
+        !c.pinned &&
+        isToday(c.createdAt)
     );
 
   const yesterdayChats =
-    filteredConversations.filter((c) =>
-      isYesterday(c.createdAt)
+    filteredConversations.filter(
+      (c) =>
+        !c.pinned &&
+        isYesterday(c.createdAt)
     );
 
   const olderChats =
     filteredConversations.filter(
       (c) =>
+        !c.pinned &&
         !isToday(c.createdAt) &&
         !isYesterday(c.createdAt)
     );
@@ -123,9 +135,18 @@ export default function Sidebar({
                 }}
                 className="flex-1 px-3 py-3 text-left"
               >
-                <p className="truncate text-sm font-medium">
-                  {conversation.title}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-medium">
+                    {conversation.title}
+                  </p>
+
+                  {conversation.pinned && (
+                    <Pin
+                      size={13}
+                      className="fill-yellow-400 text-yellow-400"
+                    />
+                  )}
+                </div>
 
                 <p className="mt-1 text-xs text-slate-300">
                   {
@@ -137,6 +158,23 @@ export default function Sidebar({
               </button>
 
               <div className="mr-2 flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePin(
+                      conversation.id
+                    );
+                  }}
+                  className="rounded-md p-1 text-slate-400 hover:bg-slate-600 hover:text-yellow-400"
+                  title={
+                    conversation.pinned
+                      ? "Unpin"
+                      : "Pin"
+                  }
+                >
+                  <Pin size={15} />
+                </button>
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -190,7 +228,6 @@ export default function Sidebar({
 
   return (
     <aside className="flex h-full w-72 flex-col border-r border-slate-800 bg-slate-900">
-      {/* Logo */}
       <div className="border-b border-slate-800 p-6">
         <div className="flex items-center gap-3">
           <Bot className="h-8 w-8 text-cyan-400" />
@@ -207,7 +244,6 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* New Chat */}
       <div className="p-4">
         <button
           onClick={() => {
@@ -221,7 +257,6 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Search */}
       <div className="px-4 pb-3">
         <div className="flex items-center gap-2 rounded-xl bg-slate-800 px-3 py-3">
           <Search
@@ -240,7 +275,6 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Conversations */}
       <div className="flex-1 overflow-y-auto px-4">
         {filteredConversations.length ===
           0 && (
@@ -249,6 +283,7 @@ export default function Sidebar({
           </div>
         )}
 
+        {renderGroup("Pinned", pinnedChats)}
         {renderGroup("Today", todayChats)}
         {renderGroup(
           "Yesterday",
@@ -258,7 +293,6 @@ export default function Sidebar({
 
         <div className="my-6 border-t border-slate-800" />
 
-        {/* Navigation */}
         <nav className="space-y-2">
           {navItem(
             "Chat",
@@ -286,7 +320,6 @@ export default function Sidebar({
         </nav>
       </div>
 
-      {/* Footer */}
       <div className="border-t border-slate-800 p-5">
         <p className="text-sm text-slate-400">
           ResearchGenie v1.0

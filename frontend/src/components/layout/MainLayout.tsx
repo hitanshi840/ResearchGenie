@@ -33,6 +33,7 @@ export default function MainLayout({
         renameConversation={
           chat.renameConversation
         }
+        togglePin={chat.togglePin}
         page={page}
         setPage={setPage}
       />

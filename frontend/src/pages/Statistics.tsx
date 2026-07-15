@@ -1,5 +1,4 @@
 import {
-  BarChart3,
   FileText,
   MessageSquare,
   Clock,
@@ -9,52 +8,146 @@ import {
   Activity,
 } from "lucide-react";
 
+import { useEffect, useMemo, useState } from "react";
+
+import api from "../api/api";
 import type { Conversation } from "../types/chat";
 
 type Props = {
   conversations: Conversation[];
 };
 
+type DocumentInfo = {
+  document_id: string;
+  document_name: string;
+  pages: number;
+  chunks: number;
+};
+
 export default function Statistics({
   conversations,
 }: Props) {
+  const [documents, setDocuments] = useState<DocumentInfo[]>([]);
+
+  useEffect(() => {
+    loadDocuments();
+  }, []);
+
+  async function loadDocuments() {
+    try {
+      const res = await api.get("/documents");
+      setDocuments(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ==========================
+  // Conversation Stats
+  // ==========================
+
   const totalChats = conversations.length;
 
   const totalMessages = conversations.reduce(
-    (total, conversation) =>
-      total + conversation.messages.length,
+    (sum, c) => sum + c.messages.length,
     0
   );
 
   const totalQuestions = conversations.reduce(
-    (total, conversation) =>
-      total +
-      conversation.messages.filter(
-        (message) => message.role === "user"
+    (sum, c) =>
+      sum +
+      c.messages.filter(
+        (m) => m.role === "user"
       ).length,
     0
   );
 
   const totalAIResponses = conversations.reduce(
-    (total, conversation) =>
-      total +
-      conversation.messages.filter(
-        (message) => message.role === "assistant"
+    (sum, c) =>
+      sum +
+      c.messages.filter(
+        (m) => m.role === "assistant"
       ).length,
     0
   );
 
   const averageMessages =
-    totalChats > 0
-      ? (totalMessages / totalChats).toFixed(1)
-      : "0";
+    totalChats === 0
+      ? "0"
+      : (
+          totalMessages / totalChats
+        ).toFixed(1);
 
   const completionRate =
-    totalQuestions > 0
-      ? Math.round(
-          (totalAIResponses / totalQuestions) * 100
-        )
-      : 0;
+    totalQuestions === 0
+      ? 0
+      : Math.round(
+          (totalAIResponses /
+            totalQuestions) *
+            100
+        );
+
+  // ==========================
+  // Document Stats
+  // ==========================
+
+  const totalDocuments =
+    documents.length;
+
+  const totalPages = documents.reduce(
+    (sum, doc) => sum + doc.pages,
+    0
+  );
+
+  const totalChunks = documents.reduce(
+    (sum, doc) => sum + doc.chunks,
+    0
+  );
+
+  const averageChunks =
+    totalDocuments === 0
+      ? 0
+      : (
+          totalChunks /
+          totalDocuments
+        ).toFixed(1);
+
+  // ==========================
+  // Weekly Activity
+  // ==========================
+
+  const weeklyActivity = useMemo(() => {
+    const days = [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+    ];
+
+    const values = new Array(7).fill(0);
+
+    conversations.forEach((chat) => {
+      const day = new Date(
+        chat.createdAt
+      ).getDay();
+
+      values[day]++;
+    });
+
+    const max = Math.max(...values, 1);
+
+    return days.map((day, i) => ({
+      day,
+      value: values[i],
+      height:
+        values[i] === 0
+          ? 12
+          : (values[i] / max) * 160,
+    }));
+  }, [conversations]);
 
   return (
     <div className="h-full overflow-y-auto p-8">
@@ -67,7 +160,8 @@ export default function Statistics({
           </h1>
 
           <p className="mt-2 text-slate-400">
-            Insights about your ResearchGenie usage.
+            Insights about your
+            ResearchGenie usage.
           </p>
         </div>
 
@@ -79,10 +173,10 @@ export default function Statistics({
         </div>
       </div>
 
-      {/* Top Cards */}
+      {/* Cards */}
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-cyan-500">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <MessageSquare
             className="mb-4 text-cyan-400"
             size={34}
@@ -97,7 +191,7 @@ export default function Statistics({
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-green-500">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <FileText
             className="mb-4 text-green-400"
             size={34}
@@ -108,11 +202,11 @@ export default function Statistics({
           </p>
 
           <h2 className="mt-2 text-4xl font-bold">
-            0
+            {totalDocuments}
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-purple-500">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <Brain
             className="mb-4 text-purple-400"
             size={34}
@@ -127,7 +221,7 @@ export default function Statistics({
           </h2>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-orange-500">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <Clock
             className="mb-4 text-orange-400"
             size={34}
@@ -146,13 +240,13 @@ export default function Statistics({
       {/* Bottom */}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        {/* Activity */}
+        {/* Weekly Activity */}
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
-          <div className="mb-5 flex items-center gap-3">
+          <div className="mb-6 flex items-center gap-3">
             <TrendingUp
-              className="text-cyan-400"
               size={24}
+              className="text-cyan-400"
             />
 
             <h2 className="text-xl font-semibold">
@@ -160,31 +254,38 @@ export default function Statistics({
             </h2>
           </div>
 
-          <div className="flex h-64 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-700">
-            <Activity
-              size={60}
-              className="text-cyan-500"
-            />
+          <div className="flex h-64 items-end justify-between gap-3">
+            {weeklyActivity.map((day) => (
+              <div
+                key={day.day}
+                className="flex flex-1 flex-col items-center"
+              >
+                <div
+                  className="w-full rounded-t-lg bg-cyan-500 transition-all"
+                  style={{
+                    height: `${day.height}px`,
+                  }}
+                />
 
-            <p className="mt-5 text-lg font-semibold">
-              Analytics Dashboard
-            </p>
+                <p className="mt-3 text-sm text-slate-400">
+                  {day.day}
+                </p>
 
-            <p className="mt-2 text-center text-slate-400">
-              Charts and activity trends will appear
-              here once enough conversations have
-              been collected.
-            </p>
+                <p className="text-xs text-slate-500">
+                  {day.value}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Summary */}
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8">
-          <div className="mb-5 flex items-center gap-3">
-            <Brain
-              className="text-purple-400"
+          <div className="mb-6 flex items-center gap-3">
+            <Activity
               size={24}
+              className="text-green-400"
             />
 
             <h2 className="text-xl font-semibold">
@@ -193,58 +294,67 @@ export default function Statistics({
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-xl bg-slate-800 p-4">
-              <span className="text-slate-400">
-                Questions Asked
-              </span>
+            <SummaryRow
+              label="Questions Asked"
+              value={totalQuestions}
+            />
 
-              <span className="font-semibold">
-                {totalQuestions}
-              </span>
-            </div>
+            <SummaryRow
+              label="Average Messages / Chat"
+              value={averageMessages}
+            />
 
-            <div className="flex items-center justify-between rounded-xl bg-slate-800 p-4">
-              <span className="text-slate-400">
-                Average Messages / Chat
-              </span>
+            <SummaryRow
+              label="AI Completion Rate"
+              value={`${completionRate}%`}
+              color="text-green-400"
+            />
 
-              <span className="font-semibold">
-                {averageMessages}
-              </span>
-            </div>
+            <SummaryRow
+              label="Indexed Pages"
+              value={totalPages}
+            />
 
-            <div className="flex items-center justify-between rounded-xl bg-slate-800 p-4">
-              <span className="text-slate-400">
-                AI Completion Rate
-              </span>
+            <SummaryRow
+              label="Total Chunks"
+              value={totalChunks}
+            />
 
-              <span className="font-semibold text-green-400">
-                {completionRate}%
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl bg-slate-800 p-4">
-              <span className="text-slate-400">
-                Average Response Time
-              </span>
-
-              <span className="font-semibold">
-                ~1 sec
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl bg-slate-800 p-4">
-              <span className="text-slate-400">
-                Documents Queried
-              </span>
-
-              <span className="font-semibold">
-                0
-              </span>
-            </div>
+            <SummaryRow
+              label="Average Chunks / Document"
+              value={averageChunks}
+            />
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+type RowProps = {
+  label: string;
+  value: string | number;
+  color?: string;
+};
+
+function SummaryRow({
+  label,
+  value,
+  color,
+}: RowProps) {
+  return (
+    <div className="flex items-center justify-between rounded-xl bg-slate-800 p-4">
+      <span className="text-slate-400">
+        {label}
+      </span>
+
+      <span
+        className={`font-semibold ${
+          color ?? ""
+        }`}
+      >
+        {value}
+      </span>
     </div>
   );
 }

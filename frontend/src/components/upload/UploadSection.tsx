@@ -15,7 +15,8 @@ export default function UploadSection({
   onUploadSuccess,
 }: Props) {
   const [message, setMessage] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] =
+    useState(false);
 
   async function upload(file: File) {
     if (uploading) return;
@@ -73,29 +74,21 @@ export default function UploadSection({
   }
 
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg">
-      <h2 className="mb-4 text-lg font-semibold">
-        Upload PDF
-      </h2>
-
+    <section className="space-y-4">
       <UploadButton
         onFileSelect={upload}
         loading={uploading}
       />
 
-      <div className="mt-4">
-        <UploadDropzone
-          onFileSelect={upload}
-          loading={uploading}
-        />
-      </div>
+      <UploadDropzone
+        onFileSelect={upload}
+        loading={uploading}
+      />
 
       {message && (
-        <div className="mt-4">
-          <UploadStatus
-            message={message}
-          />
-        </div>
+        <UploadStatus
+          message={message}
+        />
       )}
     </section>
   );

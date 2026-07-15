@@ -183,7 +183,7 @@ export default function ChatMessage({
                   (source, index) => (
                     <div
                       key={index}
-                      className="rounded-xl border border-slate-700 bg-slate-800 p-4 transition-all duration-300 hover:border-cyan-500 hover:bg-slate-850"
+                      className="rounded-xl border border-slate-700 bg-slate-800 p-4 transition-all duration-300 hover:border-cyan-500"
                     >
                       <p className="font-semibold text-white">
                         {source.document}
@@ -194,11 +194,8 @@ export default function ChatMessage({
                           📄 Page {source.page}
                         </span>
 
-                        <span className="rounded-full bg-cyan-500/20 px-2 py-1 text-cyan-300">
-                          {(source.score * 100).toFixed(
-                            1
-                          )}
-                          %
+                        <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-medium text-cyan-300">
+                          Relevant
                         </span>
                       </div>
                     </div>
