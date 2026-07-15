@@ -131,7 +131,7 @@ pip install -r requirements.txt
 Create a `.env` file
 
 ```
-GOOGLE_API_KEY=YOUR_GEMINI_API_KEY
+GROQ_API_KEY=YOUR_GROQ_API_KEY
 ```
 
 ---
