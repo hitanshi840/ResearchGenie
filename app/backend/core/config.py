@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     # ==========================
     # Embeddings
     # ==========================
-    EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
+    EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
     # ==========================
     # Chunking
