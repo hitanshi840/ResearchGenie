@@ -4,8 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.backend.core.config import settings
 from app.backend.core.exceptions import register_exception_handlers
 
-#from app.backend.api.upload import router as upload_router
-#from app.backend.api.chat import router as chat_router
+from app.backend.api.upload import router as upload_router
+from app.backend.api.chat import router as chat_router
 from app.backend.api.documents import router as documents_router
 from app.backend.api.history import router as history_router
 from app.backend.api.conversations import router as conversations_router
@@ -142,8 +142,8 @@ API_PREFIX = "/api/v1"
 # API Routers
 # -------------------------------------------------
 
-#app.include_router(upload_router, prefix=API_PREFIX)
-#app.include_router(chat_router, prefix=API_PREFIX)
+app.include_router(upload_router, prefix=API_PREFIX)
+app.include_router(chat_router, prefix=API_PREFIX)
 app.include_router(documents_router, prefix=API_PREFIX)
 app.include_router(history_router, prefix=API_PREFIX)
 app.include_router(conversations_router, prefix=API_PREFIX)
