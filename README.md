@@ -29,7 +29,7 @@ https://researchgenie.onrender.com/redoc
 - Intelligent document chunking
 - Semantic search using Sentence Transformers
 - Retrieval-Augmented Generation (RAG)
-- AI-powered responses using Google Gemini
+- AI-powered responses using Groq LLM
 - Citation-backed answers with page references
 - Multi-conversation chat interface
 - Document management
@@ -72,7 +72,7 @@ PDF → Extract → Clean → Chunk → Embed → ChromaDB
 |----------|--------------|
 | Frontend | React, TypeScript, Vite, Axios |
 | Backend | FastAPI, Python |
-| AI | Google Gemini |
+| AI | Groq API |
 | Embeddings | Sentence Transformers (all-MiniLM-L6-v2) |
 | Vector Database | ChromaDB |
 | PDF Processing | PyMuPDF |
@@ -142,7 +142,6 @@ pip install -r requirements.txt
 Create a `.env` file in the project root.
 
 ```env
-GOOGLE_API_KEY=your_google_api_key
 GROQ_API_KEY=your_groq_api_key
 ```
 
