@@ -9,7 +9,6 @@ import DashboardTop from "../components/dashboard/DashboardTop";
 import api from "../api/api";
 
 import type useChatHistory from "../hooks/useChatHistory";
-import type { Message } from "../types/chat";
 
 type Props = {
   chat: ReturnType<typeof useChatHistory>;
