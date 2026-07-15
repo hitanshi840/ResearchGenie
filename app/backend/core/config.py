@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     # ==========================
     # Embeddings
     # ==========================
-    EMBEDDING_MODEL: str = "BAAI/bge-m3"
+    EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 
     # ==========================
     # Chunking
