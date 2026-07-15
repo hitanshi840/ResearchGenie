@@ -1,244 +1,211 @@
 # 🤖 ResearchGenie
 
-An AI-powered Research Assistant built using **Retrieval-Augmented Generation (RAG)** that allows users to upload PDF documents and ask natural language questions while receiving context-aware answers grounded in the uploaded documents.
+ResearchGenie is an AI-powered **Retrieval-Augmented Generation (RAG)** research assistant that enables users to upload PDF documents and interact with them using natural language. The system retrieves relevant document context through semantic search and generates citation-backed answers using Google Gemini.
 
 ---
 
-## 🚀 Features
+## 🌐 Live Demo
 
-- 📄 Upload PDF documents
-- 🧹 Automatic text extraction & cleaning
-- ✂️ Intelligent text chunking
-- 🧠 Semantic search using BGE-M3 embeddings
-- 🤖 AI-powered answers using Google Gemini
-- 📚 Retrieval-Augmented Generation (RAG)
-- 📍 Source citations with page numbers
-- 💬 Conversation history
-- 🗂 Document management
-- 📊 Usage statistics
-- 🚫 Duplicate PDF detection
-- ⚡ FastAPI REST API
-- 📖 Interactive Swagger & ReDoc documentation
+**Frontend:**  
+https://research-genie-three.vercel.app
+
+**Backend API:**  
+https://researchgenie.onrender.com
+
+**Swagger Documentation:**  
+https://researchgenie.onrender.com/docs
+
+**ReDoc Documentation:**  
+https://researchgenie.onrender.com/redoc
+
+> **Note:** The backend is deployed on Render's free tier. Initial requests may experience cold starts, and occasional service restarts can occur due to free-tier memory limitations.
 
 ---
 
-# 🏗 Architecture
+# Features
 
-```
-                 +----------------+
-                 |     Client     |
-                 +-------+--------+
-                         |
-                         |
+- Upload and process PDF documents
+- Automatic text extraction and preprocessing
+- Intelligent document chunking
+- Semantic search using Sentence Transformers
+- Retrieval-Augmented Generation (RAG)
+- AI-powered responses using Google Gemini
+- Citation-backed answers with page references
+- Multi-conversation chat interface
+- Document management
+- Usage statistics dashboard
+- Duplicate document detection
+- RESTful API with FastAPI
+- Interactive API documentation
+
+---
+
+# System Architecture
+
+```text
+                  React Frontend
+                         │
+                         │
                   FastAPI Backend
-                         |
-        +----------------+----------------+
-        |                                 |
-        |                                 |
-   Upload Pipeline                 Chat Pipeline
-        |                                 |
-        |                                 |
- PDF → Extract → Clean → Chunk → Embed → ChromaDB
-                                         |
-                                         |
-                                  Semantic Search
-                                         |
-                                         |
-                                   Google Gemini
-                                         |
-                                         |
-                                   Final Response
+                         │
+      ┌──────────────────┴──────────────────┐
+      │                                     │
+ Upload Pipeline                     Chat Pipeline
+      │                                     │
+PDF → Extract → Clean → Chunk → Embed → ChromaDB
+                                            │
+                                            │
+                                    Semantic Retrieval
+                                            │
+                                            ▼
+                                     Google Gemini
+                                            │
+                                            ▼
+                              Answer with Source Citations
 ```
 
 ---
 
-# 🛠 Tech Stack
+# Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| FastAPI | Backend API |
-| ChromaDB | Vector Database |
-| Sentence Transformers | Embeddings |
-| BGE-M3 | Embedding Model |
-| Google Gemini | Large Language Model |
-| PyMuPDF | PDF Extraction |
-| Pydantic | Validation |
-| Python | Programming Language |
+| Category | Technologies |
+|----------|--------------|
+| Frontend | React, TypeScript, Vite, Axios |
+| Backend | FastAPI, Python |
+| AI | Google Gemini |
+| Embeddings | Sentence Transformers (all-MiniLM-L6-v2) |
+| Vector Database | ChromaDB |
+| PDF Processing | PyMuPDF |
+| Validation | Pydantic |
+| Deployment | Vercel, Render |
 
 ---
 
-# 📂 Project Structure
+# Project Structure
 
-```
+```text
 ResearchGenie
 │
-├── app
-│   ├── backend
-│   │   ├── api
-│   │   ├── core
-│   │   ├── schemas
-│   │   ├── services
-│   │   └── main.py
-│   │
-│   └── storage
+├── frontend
+│   ├── src
+│   ├── public
+│   └── package.json
 │
-├── uploaded_files
-├── chroma_db
+├── app
+│   └── backend
+│       ├── api
+│       ├── core
+│       ├── schemas
+│       ├── services
+│       ├── storage
+│       └── main.py
+│
+├── data
+│   ├── uploads
+│   └── chroma
+│
 ├── requirements.txt
-└── README.md
+├── README.md
+└── .env
 ```
 
 ---
 
-# ⚙ Installation
+# Installation
 
-## Clone Repository
+## Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/researchgenie.git
+git clone https://github.com/hitanshi840/ResearchGenie.git
 
-cd researchgenie
+cd ResearchGenie
 ```
 
----
-
-## Create Virtual Environment
+## Create a virtual environment
 
 Windows
 
 ```bash
 python -m venv .venv
-```
 
-Activate
-
-```bash
 .venv\Scripts\activate
 ```
 
----
-
-## Install Dependencies
+## Install backend dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+## Configure environment variables
 
-## Configure Environment Variables
+Create a `.env` file in the project root.
 
-Create a `.env` file
-
+```env
+GOOGLE_API_KEY=your_google_api_key
+GROQ_API_KEY=your_groq_api_key
 ```
-GROQ_API_KEY=YOUR_GROQ_API_KEY
-```
 
----
-
-## Run Server
+## Run the backend
 
 ```bash
-python -m uvicorn app.backend.main:app --reload
+uvicorn app.backend.main:app --reload
+```
+
+Backend will be available at
+
+```
+http://127.0.0.1:8000
+```
+
+## Run the frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+Frontend will be available at
+
+```
+http://localhost:5173
 ```
 
 ---
 
-# 📖 API Documentation
+# API Endpoints
 
-Swagger UI
-
-```
-http://127.0.0.1:8000/docs
-```
-
-ReDoc
-
-```
-http://127.0.0.1:8000/redoc
-```
-
----
-
-# 📌 API Endpoints
-
-## Upload
-
-```
-POST /upload/
-```
-
-Upload a PDF document.
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/api/v1/upload/` | Upload a PDF document |
+| POST | `/api/v1/chat/` | Ask questions about uploaded documents |
+| GET | `/api/v1/documents/` | Retrieve uploaded documents |
+| DELETE | `/api/v1/documents/{document_id}` | Delete a document |
+| GET | `/api/v1/history/` | Retrieve chat history |
+| DELETE | `/api/v1/history/` | Clear chat history |
+| POST | `/api/v1/conversations/` | Create a conversation |
+| GET | `/api/v1/conversations/` | List conversations |
+| DELETE | `/api/v1/conversations/{conversation_id}` | Delete a conversation |
+| GET | `/api/v1/stats/` | Retrieve application statistics |
 
 ---
 
-## Chat
+# Retrieval-Augmented Generation Workflow
 
-```
-POST /chat/
-```
-
-Ask questions about uploaded documents.
-
----
-
-## Documents
-
-```
-GET /documents/
-DELETE /documents/{document_id}
-```
-
-Manage uploaded documents.
-
----
-
-## History
-
-```
-GET /history/
-DELETE /history/
-```
-
-Retrieve and clear chat history.
-
----
-
-## Conversations
-
-```
-POST /conversations/
-GET /conversations/
-DELETE /conversations/{conversation_id}
-```
-
-Manage conversations.
-
----
-
-## Statistics
-
-```
-GET /stats/
-```
-
-Retrieve application statistics.
-
----
-
-# 🔄 RAG Workflow
-
-```
+```text
 User Uploads PDF
         │
         ▼
-Text Extraction
+PDF Text Extraction
         │
         ▼
-Cleaning
+Text Cleaning
         │
         ▼
-Chunking
+Chunk Generation
         │
         ▼
 Embedding Generation
@@ -247,7 +214,7 @@ Embedding Generation
 Store in ChromaDB
         │
         ▼
-User asks Question
+User Query
         │
         ▼
 Semantic Retrieval
@@ -259,48 +226,44 @@ Relevant Context
 Google Gemini
         │
         ▼
-Answer + Sources
+Citation-backed Response
 ```
 
 ---
 
-# ✨ Current Features
+# Current Capabilities
 
-- Upload multiple PDF documents
-- Duplicate detection
-- Intelligent retrieval
-- Source citation
-- Conversation history
-- Document deletion
-- Statistics dashboard
-- OpenAPI documentation
-- Fast semantic search
+- Multiple PDF uploads
+- Semantic document search
+- Citation-backed responses
+- Duplicate document detection
+- Multi-conversation support
+- Document management
+- Dashboard statistics
+- FastAPI REST API
+- Interactive API documentation
 
 ---
 
-# 🔮 Future Improvements
+# Future Enhancements
 
-- Authentication
-- User accounts
-- Streaming AI responses
+- User authentication
 - OCR support
 - DOCX support
-- Multi-user workspace
-- Hybrid Search (BM25 + Vector Search)
+- Hybrid retrieval (BM25 + Vector Search)
+- Streaming AI responses
 - Redis caching
 - Docker deployment
 - Kubernetes deployment
+- Multi-user workspaces
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 **Hitanshi**
 
-Built as an end-to-end AI Research Assistant using FastAPI, ChromaDB, Google Gemini, and Retrieval-Augmented Generation (RAG).
+B.Tech Computer Science Engineering (Artificial Intelligence)  
+Indira Gandhi Delhi Technical University for Women (IGDTUW)
 
----
-
-# ⭐ If you like this project
-
-Please consider giving it a ⭐ on GitHub.
+GitHub: https://github.com/hitanshi840
