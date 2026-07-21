@@ -58,7 +58,7 @@ PDF → Extract → Clean → Chunk → Embed → ChromaDB
                                     Semantic Retrieval
                                             │
                                             ▼
-                                     Google Gemini
+                                         Groq API
                                             │
                                             ▼
                               Answer with Source Citations
